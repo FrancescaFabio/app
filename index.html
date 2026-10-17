@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TimeKeep - Gestione Scadenze</title>
+
+  <!-- Google Fonts: Roboto e Icone Material Symbols Rounded -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+  <style>
+    /* =========================================================
+       VARIABILI CSS (Design Tokens del tema Botanical Utility)
+       ========================================================= */
+    :root {
+      /* Colori della palette botanica */
+      --color-canvas: #BEE0B1;             /* Sfondo verde matcha principale */
+      --color-canvas-border: #A2C993;      /* Bordo tela mobile */
+      --color-surface-card: #E2E8E1;       /* Superficie morbida delle schede */
+      --color-surface-card-hover: #D8E0D7; /* Effetto hover schede */
+      --color-surface-icon: rgba(255, 255, 255, 0.85); /* Sfondo sottomesso icone */
+      --color-border-card: rgba(255, 255, 255, 0.8);  /* Bordo luminoso sottile */
+
+      /* Colori testo e icone */
+      --color-text-headline: #283F20;      /* Titoli verde foresta scuro */
+      --color-text-body: #3D5732;          /* Testo principale */
+      --color-text-muted: #506E45;         /* Sottotitoli ed etichette secondarie */
+
+      /* Azioni e badge */
+      --color-primary: #25441E;            /* Verde dominante bottone principale */
+      --color-primary-hover: #1b3315;      /* Hover bottone principale */
+      --color-accent-green: #5DA824;       /* Verde positivo per badge */
+      --color-urgent-badge-text: #BA1A1A;  /* Rosso testo urgenza */
+
+      /* Cerchi colorati per il calendario */
+      --circle-week-red: #E53935;          /* Scadenze della settimana */
+      --circle-month-yellow: #FBC02D;      /* Scadenze del mese */
+      --circle-future-green: #43A047;      /* Scadenze più lontane */
+
+      /* Tipografia e raggio */
+      --font-family-base: 'Roboto', sans-serif;
+      --radius-app: 40px;                  /* Bordo arrotondato stile iPhone */
+      --radius-card: 24px;                 /* Bordo arrotondato delle schede */
+      --radius-inner: 16px;                /* Elementi interni */
+      --radius-pill: 9999px;               /* Forma a pillola per bottoni e badge */
+
+      /* Ombre delicate */
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 4px 12px rgba(37, 68, 30, 0.12);
+      --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.15);
+    }
+
+    /* =========================================================
+       RESET E STRUTTURA DI BASE (Mobile-First)
+       ========================================================= */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family-base);
+      background-color: #EAEBE8;
+      color: var(--color-text-body);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Schermi desktop: simulazione dispositivo mobile centrato */
+    @media (min-width: 480px) {
+      body {
+        padding: 24px;
+      }
+    }
+
+    /* Contenitore applicazione mobile (Max 420px) */
+    .app-device {
+      width: 100%;
+      max-width: 420px;
+      height: 100vh;
+      max-height: 880px;
+      background-color: var(--color-canvas);
+      border: 1px solid var(--color-canvas-border);
+      border-radius: 0;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    @media (min-width: 480px) {
+      .app-device {
+        border-radius: var(--radius-app);
+        height: 844px;
+      }
+    }
+
+    /* Icone Material Symbols */
+    .material-symbols-rounded {
+      font-family: 'Material Symbols Rounded';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      display: inline-block;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+      user-select: none;
+    }
+
+    /* =========================================================
+       BARRA DI STATO E HEADER
+       ========================================================= */
+    .status-bar {
+      padding: 12px 24px 6px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-text-body);
+    }
+
+    .status-icons {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .status-icons .material-symbols-rounded {
+      font-size: 16px;
+    }
+
+    /* Header dell'app */
+    .app-header {
+      padding: 8px 20px 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(168, 206, 155, 0.6);
+    }
+
+    .app-title-group h1 {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--color-text-headline);
+      letter-spacing: -0.5px;
+    }
+
+    .app-title-group p {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text-muted);
+      margin-top: 2px;
+    }
+
+    .profile-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-pill);
+      background-color: var(--color-surface-card);
+      border: 1px solid var(--color-border-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-body);
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .profile-btn:hover {
+      background-color: var(--color-surface-card-hover);
+    }
+
+    /* =========================================================
+       AREA CONTENUTI SCORREVOLE
+       ========================================================= */
+    .scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Sezione con intestazione */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 0 2px;
+    }
+
+    .section-header h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-text-headline);
+    }
+
+    .section-badge {
+      font-size: 11px;
+      font-weight: 700;
+      background-color: rgba(45, 73, 36, 0.12);
+      color: var(--color-text-headline);
+      padding: 3px 9px;
+      border-radius: var(--radius-pill);
+    }
+
+    /* =========================================================
+       1. METRICHE IN EVIDENZA (Settimana e Mese)
+       ========================================================= */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .metric-card {
+      background-color: var(--color-surface-card);
+      border: 1px solid var(--color-border-card);
+      border-radius: var(--radius-card);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 130px;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      text-align: left;
+      transition: transform 0.15s, box-shadow 0.15s, background-color 0.15s;
+    }
+
+    .metric-card:hover {
+      background-color: var(--color-surface-card-hover);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .metric-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .metric-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      max-width: 95px;
+      line-height: 1.3;
+    }
+
+    .metric-icon-wrap {
+      width: 30px;
+      height: 30px;
+      border-radius: var(--radius-pill);
+      background-color: var(--color-surface-icon);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-body);
+    }
+
+    .metric-number {
+      font-size: 38px;
+      font-weight: 900;
+      color: var(--color-text-headline);
+      line-height: 1;
+    }
+
+    .metric-subtitle {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--color-text-muted);
+      margin-top: 4px;
+    }
+
+    /* =========================================================
+       2. CATEGORIE RAPIDE
+       ========================================================= */
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .category-btn {
+      background-color: var(--color-surface-card);
+      border: 1px solid var(--color-border-card);
+      border-radius: var(--radius-card);
+      padding: 14px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.15s, background-color 0.15s;
+    }
+
+    .category-btn:hover {
+      background-color: var(--color-surface-card-hover);
+    }
+
+    .category-btn:active {
+      transform: scale(0.96);
+    }
+
+    .category-icon-box {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-inner);
+      background-color: var(--color-surface-icon);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-body);
+      margin-bottom: 8px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
+    .category-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-text-headline);
+    }
+
+    /* =========================================================
+       3. PROSSIME SCADENZE (Lista Principale)
+       ========================================================= */
+    .deadline-list {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .deadline-item {
+      background-color: var(--color-surface-card);
+      border: 1px solid var(--color-border-card);
+      border-radius: var(--radius-inner);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: background-color 0.15s, transform 0.15s, box-shadow 0.15s;
+    }
+
+    .deadline-item:hover {
+      background-color: var(--color-surface-card-hover);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .deadline-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .deadline-icon-box {
+      width: 40px;
+      height: 40px;
+      background-color: var(--color-surface-icon);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-body);
+      flex-shrink: 0;
+    }
+
+    .deadline-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-text-headline);
+      margin-bottom: 2px;
+    }
+
+    .deadline-category {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--color-text-muted);
+    }
+
+    .deadline-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .badge-time {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      white-space: nowrap;
+    }
+
+    .badge-urgent {
+      background-color: var(--color-accent-green);
+      color: #ffffff;
+    }
+
+    .badge-normal {
+      background-color: rgba(255, 255, 255, 0.85);
+      border: 1px solid #A6C49C;
+      color: #304E26;
+    }
+
+    .badge-subtext {
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .subtext-urgent {
+      color: var(--color-urgent-badge-text);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .subtext-normal {
+      color: #547348;
+    }
+
+    /* Messaggio lista vuota */
+    .empty-state {
+      padding: 24px;
+      text-align: center;
+      background-color: rgba(226, 232, 225, 0.6);
+      border-radius: var(--radius-inner);
+      font-size: 13px;
+      color: var(--color-text-muted);
+    }
+
+    /* =========================================================
+       FOOTER DOCK CON PULSANTE AZIONE PRINCIPALE
+       ========================================================= */
+    .app-footer {
+      padding: 10px 20px 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: transparent;
+    }
+
+    .add-btn {
+      width: 100%;
+      height: 48px;
+      background-color: var(--color-primary);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 700;
+      border: none;
+      border-radius: var(--radius-pill);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+      transition: background-color 0.15s, transform 0.1s;
+    }
+
+    .add-btn:hover {
+      background-color: var(--color-primary-hover);
+    }
+
+    .add-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Barra indicatore Home (stile smartphone) */
+    .home-indicator {
+      width: 130px;
+      height: 4px;
+      background-color: rgba(61, 87, 50, 0.35);
+      border-radius: var(--radius-pill);
+      margin: 0 auto;
+    }
+
+    /* =========================================================
+       MODALI (Schermate a comparsa dal basso)
+       ========================================================= */
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(23, 29, 25, 0.45);
+      backdrop-filter: blur(2px);
+      display: none;
+      justify-content: center;
+      align-items: flex-end;
+      z-index: 100;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-sheet {
+      width: 100%;
+      background-color: var(--color-surface-card);
+      border-radius: 28px 28px 0 0;
+      border-top: 1px solid var(--color-border-card);
+      padding: 20px 20px 24px 20px;
+      box-shadow: var(--shadow-lg);
+      max-height: 85%;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(168, 206, 155, 0.5);
+      padding-bottom: 12px;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--color-text-headline);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--color-border-card);
+      background-color: rgba(255, 255, 255, 0.85);
+      color: var(--color-text-headline);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* Modulo per "Aggiungi scadenza" */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-text-headline);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid #A8CE9B;
+      background-color: #FFFFFF;
+      font-family: var(--font-family-base);
+      font-size: 14px;
+      color: var(--color-text-headline);
+      outline: none;
+    }
+
+    .form-control:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px rgba(37, 68, 30, 0.2);
+    }
+
+    .category-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .category-pill-btn {
+      padding: 8px 14px;
+      border-radius: var(--radius-pill);
+      border: 1px solid #A8CE9B;
+      background-color: #FFFFFF;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-text-headline);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .category-pill-btn.active {
+      background-color: var(--color-primary);
+      color: #FFFFFF;
+      border-color: var(--color-primary);
+    }
+
+    .modal-action-btn {
+      width: 100%;
+      height: 46px;
+      background-color: var(--color-primary);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius-pill);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .modal-action-btn:hover {
+      background-color: var(--color-primary-hover);
+    }
+
+    /* =========================================================
+       CALENDARIO MENSILE (Scadenze del Mese)
+       ========================================================= */
+    .calendar-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .calendar-month-name {
+      text-align: center;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--color-text-headline);
+    }
+
+    .calendar-legend {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      background: rgba(255, 255, 255, 0.6);
+      padding: 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-headline);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .dot-red { background-color: var(--circle-week-red); }
+    .dot-yellow { background-color: var(--circle-month-yellow); }
+    .dot-green { background-color: var(--circle-future-green); }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      text-align: center;
+    }
+
+    .calendar-weekday {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      padding-bottom: 4px;
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.5);
+      position: relative;
+    }
+
+    .calendar-day.empty {
+      background: transparent;
+    }
+
+    /* Cerchi colorati per le scadenze sul calendario */
+    .calendar-day.has-deadline-red {
+      box-shadow: 0 0 0 2.5px var(--circle-week-red);
+      font-weight: 800;
+      color: var(--circle-week-red);
+      background-color: #FFEBEE;
+    }
+
+    .calendar-day.has-deadline-yellow {
+      box-shadow: 0 0 0 2.5px var(--circle-month-yellow);
+      font-weight: 800;
+      color: #9A7B00;
+      background-color: #FFFDE7;
+    }
+
+    .calendar-day.has-deadline-green {
+      box-shadow: 0 0 0 2.5px var(--circle-future-green);
+      font-weight: 800;
+      color: var(--circle-future-green);
+      background-color: #E8F5E9;
+    }
+
+    /* =========================================================
+       SCHERMATA DETTAGLIO SCADENZA (Assicurazione Auto)
+       ========================================================= */
+    .detail-card {
+      background-color: #FFFFFF;
+      border-radius: var(--radius-inner);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border: 1px solid #A8CE9B;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      border-bottom: 1px dashed #E2E8E1;
+      padding-bottom: 8px;
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .detail-label {
+      color: var(--color-text-muted);
+      font-weight: 600;
+    }
+
+    .detail-value {
+      color: var(--color-text-headline);
+      font-weight: 700;
+    }
+
+    .complete-btn {
+      width: 100%;
+      height: 48px;
+      background-color: var(--color-accent-green);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius-pill);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .complete-btn:hover {
+      background-color: #4b8a1c;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =========================================================
+       CONTENITORE PRINCIPALE APP MOBILE (Layout Mobile-First)
+       ========================================================= -->
+  <main class="app-device">
+
+    <!-- BARRA DI STATO SIMULATA -->
+    <header class="status-bar">
+      <span>09:41</span>
+      <div class="status-icons">
+        <span class="material-symbols-rounded">signal_cellular_alt</span>
+        <span class="material-symbols-rounded">wifi</span>
+        <span class="material-symbols-rounded">battery_full</span>
+      </div>
+    </header>
+
+    <!-- INTESTAZIONE PRINCIPALE DELL'APP -->
+    <header class="app-header">
+      <div class="app-title-group">
+        <h1>TimeKeep</h1>
+        <p>Gestione scadenze personali</p>
+      </div>
+      <button type="button" class="profile-btn" aria-label="Profilo utente" id="profileButton">
+        <span class="material-symbols-rounded">account_circle</span>
+      </button>
+    </header>
+
+    <!-- AREA SCORREVOLE CENTRALE -->
+    <div class="scroll-content">
+
+      <!-- SEZIONE 1: METRICHE IN EVIDENZA -->
+      <section>
+        <div class="metrics-grid">
+          <!-- Card: Scadenze in settimana -->
+          <article class="metric-card" id="weekMetricsCard" role="button" tabindex="0">
+            <div class="metric-top">
+              <span class="metric-title">Scadenze in settimana</span>
+              <div class="metric-icon-wrap">
+                <span class="material-symbols-rounded">calendar_view_week</span>
+              </div>
+            </div>
+            <div>
+              <div class="metric-number" id="weekCountDisplay">3</div>
+              <span class="metric-subtitle">prossimi 7 giorni</span>
+            </div>
+          </article>
+
+          <!-- Card: Scadenze del mese -->
+          <article class="metric-card" id="monthMetricsCard" role="button" tabindex="0">
+            <div class="metric-top">
+              <span class="metric-title">Scadenze del mese</span>
+              <div class="metric-icon-wrap">
+                <span class="material-symbols-rounded">calendar_month</span>
+              </div>
+            </div>
+            <div>
+              <div class="metric-number" id="monthCountDisplay">8</div>
+              <span class="metric-subtitle">questo mese</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- SEZIONE 2: CATEGORIE RAPIDE -->
+      <section>
+        <div class="section-header">
+          <h2>Categorie rapide</h2>
+          <span class="section-badge" id="categoryCountBadge">3 attive</span>
+        </div>
+        <div class="categories-grid">
+          <!-- Categoria Macchina -->
+          <button type="button" class="category-btn" data-category="Macchina">
+            <div class="category-icon-box">
+              <span class="material-symbols-rounded">directions_car</span>
+            </div>
+            <span class="category-name">Macchina</span>
+          </button>
+
+          <!-- Categoria Medicine -->
+          <button type="button" class="category-btn" data-category="Medicine">
+            <div class="category-icon-box">
+              <span class="material-symbols-rounded">medical_services</span>
+            </div>
+            <span class="category-name">Medicine</span>
+          </button>
+
+          <!-- Categoria Bollette -->
+          <button type="button" class="category-btn" data-category="Bollette">
+            <div class="category-icon-box">
+              <span class="material-symbols-rounded">description</span>
+            </div>
+            <span class="category-name">Bollette</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- SEZIONE 3: PROSSIME SCADENZE -->
+      <section>
+        <div class="section-header">
+          <h2>Prossime scadenze</h2>
+          <span class="section-badge">Priorità temporale</span>
+        </div>
+        <!-- Contenitore dinamico generato con JavaScript -->
+        <div class="deadline-list" id="deadlineListContainer">
+          <!-- Gli elementi verranno inseriti qui dal JavaScript -->
+        </div>
+      </section>
+
+    </div>
+
+    <!-- SEZIONE 4: FOOTER DOCK FISSO CON PULSANTE AGGIUNGI -->
+    <footer class="app-footer">
+      <button type="button" class="add-btn" id="openAddModalBtn">
+        <span class="material-symbols-rounded">add</span>
+        <span>Aggiungi scadenza</span>
+      </button>
+      <div class="home-indicator"></div>
+    </footer>
+
+    <!-- =========================================================
+         SCHERMATE MODALI (A comparsa per le interazioni utente)
+         ========================================================= -->
+
+    <!-- MODALE 1: Aggiungi nuova scadenza -->
+    <div class="modal-overlay" id="addModalOverlay">
+      <div class="modal-sheet">
+        <div class="modal-top-bar">
+          <div class="modal-title">
+            <span class="material-symbols-rounded">add_circle</span>
+            <span>Nuova Scadenza</span>
+          </div>
+          <button type="button" class="modal-close-btn" id="closeAddModalBtn" aria-label="Chiudi">&times;</button>
+        </div>
+
+        <!-- Selettore Categoria con bottoni a pillola -->
+        <div class="form-group">
+          <label>Categoria</label>
+          <div class="category-pills" id="categoryPillsGroup">
+            <button type="button" class="category-pill-btn active" data-cat="Macchina">
+              <span class="material-symbols-rounded">directions_car</span> Macchina
+            </button>
+            <button type="button" class="category-pill-btn" data-cat="Medicine">
+              <span class="material-symbols-rounded">medical_services</span> Medicine
+            </button>
+            <button type="button" class="category-pill-btn" data-cat="Bollette">
+              <span class="material-symbols-rounded">description</span> Bollette
+            </button>
+            <button type="button" class="category-pill-btn" data-cat="Altro">
+              <span class="material-symbols-rounded">label</span> Altro
+            </button>
+          </div>
+        </div>
+
+        <!-- Campo Descrizione -->
+        <div class="form-group">
+          <label for="newDescription">Descrizione</label>
+          <input type="text" id="newDescription" class="form-control" placeholder="Es. Tagliando o Rata del mutuo">
+        </div>
+
+        <!-- Campo Data -->
+        <div class="form-group">
+          <label for="newDate">Data di scadenza</label>
+          <input type="date" id="newDate" class="form-control">
+        </div>
+
+        <!-- Tasto di conferma -->
+        <button type="button" class="modal-action-btn" id="confirmAddBtn">
+          <span class="material-symbols-rounded">check</span>
+          <span>Aggiungi</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- MODALE 2: Calendario "Scadenze del mese" con cerchi colorati -->
+    <div class="modal-overlay" id="monthModalOverlay">
+      <div class="modal-sheet">
+        <div class="modal-top-bar">
+          <div class="modal-title">
+            <span class="material-symbols-rounded">calendar_month</span>
+            <span>Scadenze del Mese</span>
+          </div>
+          <button type="button" class="modal-close-btn" id="closeMonthModalBtn" aria-label="Chiudi">&times;</button>
+        </div>
+
+        <div class="calendar-container">
+          <!-- Nome mese corrente -->
+          <div class="calendar-month-name" id="calendarMonthHeader">Ottobre 2026</div>
+
+          <!-- Legenda con i cerchi colorati richiesti -->
+          <div class="calendar-legend">
+            <div class="legend-item">
+              <div class="legend-dot dot-red"></div>
+              <span>Settimana</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot dot-yellow"></div>
+              <span>Mese</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot dot-green"></div>
+              <span>Più lontane</span>
+            </div>
+          </div>
+
+          <!-- Griglia giorni del calendario -->
+          <div class="calendar-grid" id="calendarDaysGrid">
+            <!-- Giorni generati da JavaScript -->
+          </div>
+        </div>
+
+        <!-- Elenco scadenze del mese -->
+        <div class="section-header" style="margin-top: 8px;">
+          <h2>Tutte le scadenze del mese</h2>
+        </div>
+        <div class="deadline-list" id="monthDeadlinesContainer">
+          <!-- Popolato dinamicamente da JavaScript -->
+        </div>
+      </div>
+    </div>
+
+    <!-- MODALE 3: Elenco "Scadenze in settimana" -->
+    <div class="modal-overlay" id="weekModalOverlay">
+      <div class="modal-sheet">
+        <div class="modal-top-bar">
+          <div class="modal-title">
+            <span class="material-symbols-rounded">calendar_view_week</span>
+            <span>Scadenze in Settimana</span>
+          </div>
+          <button type="button" class="modal-close-btn" id="closeWeekModalBtn" aria-label="Chiudi">&times;</button>
+        </div>
+
+        <p style="font-size: 13px; color: var(--color-text-muted);">
+          Scadenze che richiedono la tua attenzione nei prossimi 7 giorni:
+        </p>
+        <div class="deadline-list" id="weekDeadlinesContainer">
+          <!-- Popolato dinamicamente da JavaScript -->
+        </div>
+      </div>
+    </div>
+
+    <!-- MODALE 4: Dettaglio scadenza con tasto "Completata" -->
+    <div class="modal-overlay" id="detailModalOverlay">
+      <div class="modal-sheet">
+        <div class="modal-top-bar">
+          <div class="modal-title">
+            <span class="material-symbols-rounded" id="detailCategoryIcon">directions_car</span>
+            <span id="detailTitleHeader">Dettaglio Scadenza</span>
+          </div>
+          <button type="button" class="modal-close-btn" id="closeDetailModalBtn" aria-label="Chiudi">&times;</button>
+        </div>
+
+        <div class="detail-card">
+          <div class="detail-row">
+            <span class="detail-label">Scadenza</span>
+            <span class="detail-value" id="detailItemTitle">Assicurazione Auto</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Categoria</span>
+            <span class="detail-value" id="detailItemCategory">Macchina</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Data</span>
+            <span class="detail-value" id="detailItemDate">19 Ottobre 2026</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Stato</span>
+            <span class="detail-value" id="detailItemStatus" style="color: var(--color-urgent-badge-text);">Urgente</span>
+          </div>
+        </div>
+
+        <!-- Tasto "Completata" per contrassegnare o rimuovere la scadenza -->
+        <button type="button" class="complete-btn" id="completeDeadlineBtn">
+          <span class="material-symbols-rounded">check_circle</span>
+          <span>Completata</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- MODALE 5: Categorie Rapide (Filtro scadenze per categoria) -->
+    <div class="modal-overlay" id="categoryFilterModalOverlay">
+      <div class="modal-sheet">
+        <div class="modal-top-bar">
+          <div class="modal-title">
+            <span class="material-symbols-rounded" id="categoryFilterModalIcon">folder</span>
+            <span id="categoryFilterModalTitle">Categoria: Macchina</span>
+          </div>
+          <button type="button" class="modal-close-btn" id="closeCategoryFilterModalBtn" aria-label="Chiudi">&times;</button>
+        </div>
+
+        <div class="deadline-list" id="categoryDeadlinesContainer">
+          <!-- Popolato dinamicamente da JavaScript -->
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- =========================================================
+       CODICE JAVASCRIPT VANILLA DIDATTICO
+       ========================================================= -->
+  <script>
+    /* === 1. STATO INIZIALE DEI DATI (Scadenze preimpostate) === */
+    // Array semplice contenente gli oggetti delle scadenze
+    const deadlinesList = [
+      {
+        id: 1,
+        title: "Assicurazione Auto",
+        category: "Macchina",
+        icon: "directions_car",
+        date: "2026-10-19",
+        badgeText: "Tra 2 giorni",
+        statusText: "Urgente",
+        isUrgent: true,
+        daysOffset: 2
+      },
+      {
+        id: 2,
+        title: "Ritiro Ricetta Medica",
+        category: "Medicine",
+        icon: "medical_services",
+        date: "2026-10-21",
+        badgeText: "Tra 4 giorni",
+        statusText: "In attesa",
+        isUrgent: false,
+        daysOffset: 4
+      },
+      {
+        id: 3,
+        title: "Bolletta Energia Elettrica",
+        category: "Bollette",
+        icon: "description",
+        date: "2026-10-28",
+        badgeText: "Scade il 28",
+        statusText: "Programmata",
+        isUrgent: false,
+        daysOffset: 11
+      },
+      {
+        id: 4,
+        title: "Controllo Pressione Pneumatici",
+        category: "Macchina",
+        icon: "directions_car",
+        date: "2026-10-23",
+        badgeText: "Tra 6 giorni",
+        statusText: "In attesa",
+        isUrgent: false,
+        daysOffset: 6
+      },
+      {
+        id: 5,
+        title: "Acquisto Integratori",
+        category: "Medicine",
+        icon: "medical_services",
+        date: "2026-10-29",
+        badgeText: "Scade il 29",
+        statusText: "Programmata",
+        isUrgent: false,
+        daysOffset: 12
+      },
+      {
+        id: 6,
+        title: "Bolletta Connessione Internet",
+        category: "Bollette",
+        icon: "description",
+        date: "2026-10-31",
+        badgeText: "Scade il 31",
+        statusText: "Programmata",
+        isUrgent: false,
+        daysOffset: 14
+      },
+      {
+        id: 7,
+        title: "Revisione Biennale Auto",
+        category: "Macchina",
+        icon: "directions_car",
+        date: "2026-11-15",
+        badgeText: "15 Novembre",
+        statusText: "Futura",
+        isUrgent: false,
+        daysOffset: 29
+      },
+      {
+        id: 8,
+        title: "Visita Dentistica di Controllo",
+        category: "Medicine",
+        icon: "medical_services",
+        date: "2026-11-20",
+        badgeText: "20 Novembre",
+        statusText: "Futura",
+        isUrgent: false,
+        daysOffset: 34
+      }
+    ];
+
+    // Variabile per tenere traccia della scadenza attualmente selezionata nel dettaglio
+    let activeDeadlineId = null;
+    // Categoria attualmente selezionata nel modulo di inserimento
+    let selectedAddCategory = "Macchina";
+
+    /* === 2. SELEZIONE DEGLI ELEMENTI HTML (DOM) === */
+    // Contenitori e conteggi
+    const deadlineListContainer = document.querySelector("#deadlineListContainer");
+    const weekCountDisplay = document.querySelector("#weekCountDisplay");
+    const monthCountDisplay = document.querySelector("#monthCountDisplay");
+
+    // Schede metriche cliccabili
+    const weekMetricsCard = document.querySelector("#weekMetricsCard");
+    const monthMetricsCard = document.querySelector("#monthMetricsCard");
+
+    // Pulsanti di apertura e chiusura modali
+    const openAddModalBtn = document.querySelector("#openAddModalBtn");
+    const closeAddModalBtn = document.querySelector("#closeAddModalBtn");
+    const addModalOverlay = document.querySelector("#addModalOverlay");
+
+    const weekModalOverlay = document.querySelector("#weekModalOverlay");
+    const closeWeekModalBtn = document.querySelector("#closeWeekModalBtn");
+    const weekDeadlinesContainer = document.querySelector("#weekDeadlinesContainer");
+
+    const monthModalOverlay = document.querySelector("#monthModalOverlay");
+    const closeMonthModalBtn = document.querySelector("#closeMonthModalBtn");
+    const monthDeadlinesContainer = document.querySelector("#monthDeadlinesContainer");
+    const calendarDaysGrid = document.querySelector("#calendarDaysGrid");
+
+    const detailModalOverlay = document.querySelector("#detailModalOverlay");
+    const closeDetailModalBtn = document.querySelector("#closeDetailModalBtn");
+    const completeDeadlineBtn = document.querySelector("#completeDeadlineBtn");
+
+    const categoryFilterModalOverlay = document.querySelector("#categoryFilterModalOverlay");
+    const closeCategoryFilterModalBtn = document.querySelector("#closeCategoryFilterModalBtn");
+    const categoryFilterModalTitle = document.querySelector("#categoryFilterModalTitle");
+    const categoryFilterModalIcon = document.querySelector("#categoryFilterModalIcon");
+    const categoryDeadlinesContainer = document.querySelector("#categoryDeadlinesContainer");
+
+    // Elementi del form di aggiunta
+    const categoryPillsGroup = document.querySelector("#categoryPillsGroup");
+    const newDescriptionInput = document.querySelector("#newDescription");
+    const newDateInput = document.querySelector("#newDate");
+    const confirmAddBtn = document.querySelector("#confirmAddBtn");
+
+    /* === 3. FUNZIONI DI GESTIONE MODALI (Apri e Chiudi) === */
+    // Funzione generica per aprire una schermata modale
+    function showModal(modalElement) {
+      modalElement.classList.add("active");
+    }
+
+    // Funzione generica per chiudere una schermata modale
+    function hideModal(modalElement) {
+      modalElement.classList.remove("active");
+    }
+
+    /* === 4. RENDERING DELL'ELENCO PRINCIPALE E CALCOLO METRICHE === */
+    // Restituisce l'icona appropriata in base al nome della categoria
+    function getCategoryIcon(categoryName) {
+      if (categoryName === "Macchina") return "directions_car";
+      if (categoryName === "Medicine") return "medical_services";
+      if (categoryName === "Bollette") return "description";
+      return "label";
+    }
+
+    // Costruisce l'HTML di un singolo elemento di scadenza
+    function buildDeadlineHtml(item) {
+      const badgeClass = item.isUrgent ? "badge-urgent" : "badge-normal";
+      const subtextClass = item.isUrgent ? "subtext-urgent" : "subtext-normal";
+
+      return `
+        <div class="deadline-item" data-id="${item.id}">
+          <div class="deadline-left">
+            <div class="deadline-icon-box">
+              <span class="material-symbols-rounded">${item.icon}</span>
+            </div>
+            <div>
+              <p class="deadline-title">${item.title}</p>
+              <p class="deadline-category">${item.category}</p>
+            </div>
+          </div>
+          <div class="deadline-right">
+            <span class="badge-time ${badgeClass}">${item.badgeText}</span>
+            <span class="badge-subtext ${subtextClass}">${item.statusText}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // Aggiorna l'elenco principale sulla schermata home e i contatori
+    function renderMainList() {
+      // Calcola le scadenze della settimana (daysOffset <= 7) e del mese (entro Ottobre)
+      const weeklyDeadlines = deadlinesList.filter(function(item) {
+        return item.daysOffset <= 7;
+      });
+
+      const monthlyDeadlines = deadlinesList.filter(function(item) {
+        return item.date.startsWith("2026-10");
+      });
+
+      // Aggiorna i numeri in evidenza nelle due schede metriche
+      weekCountDisplay.textContent = weeklyDeadlines.length;
+      monthCountDisplay.textContent = monthlyDeadlines.length;
+
+      // Se non ci sono scadenze, mostra un messaggio cortese
+      if (deadlinesList.length === 0) {
+        deadlineListContainer.innerHTML = `
+          <div class="empty-state">
+            Nessuna scadenza presente. Clicca "+ Aggiungi scadenza" per iniziare!
+          </div>
+        `;
+        return;
+      }
+
+      // Mostra le prime scadenze ordinate per priorità temporale
+      let htmlString = "";
+      for (let i = 0; i < deadlinesList.length; i++) {
+        htmlString += buildDeadlineHtml(deadlinesList[i]);
+      }
+      deadlineListContainer.innerHTML = htmlString;
+
+      // Aggiunge l'evento click a ogni elemento della lista per aprire il dettaglio
+      attachDeadlineClickEvents();
+    }
+
+    // Collega l'evento click su ogni scadenza per aprire il dettaglio
+    function attachDeadlineClickEvents() {
+      const allDeadlineItems = document.querySelectorAll(".deadline-item");
+      allDeadlineItems.forEach(function(itemElement) {
+        itemElement.addEventListener("click", function() {
+          const deadlineId = parseInt(this.getAttribute("data-id"));
+          openDetailModal(deadlineId);
+        });
+      });
+    }
+
+    /* === 5. FUNZIONALITÀ 1: AGGIUNGI SCADENZA === */
+    // Gestione della selezione delle categorie a pillola nel modulo
+    categoryPillsGroup.addEventListener("click", function(event) {
+      const clickedBtn = event.target.closest(".category-pill-btn");
+      if (!clickedBtn) return;
+
+      // Rimuove la classe attiva da tutti i pulsanti e la aggiunge a quello cliccato
+      const allPills = categoryPillsGroup.querySelectorAll(".category-pill-btn");
+      allPills.forEach(function(btn) {
+        btn.classList.remove("active");
+      });
+      clickedBtn.classList.add("active");
+      selectedAddCategory = clickedBtn.getAttribute("data-cat");
+    });
+
+    // Apertura e chiusura modale aggiungi
+    openAddModalBtn.addEventListener("click", function() {
+      // Imposta data di default (Oggi o prossima)
+      newDateInput.value = "2026-10-25";
+      newDescriptionInput.value = "";
+      showModal(addModalOverlay);
+    });
+
+    closeAddModalBtn.addEventListener("click", function() {
+      hideModal(addModalOverlay);
+    });
+
+    // Conferma e inserimento nuova scadenza
+    confirmAddBtn.addEventListener("click", function() {
+      const description = newDescriptionInput.value.trim();
+      const dateValue = newDateInput.value;
+
+      if (description === "") {
+        alert("Inserisci una breve descrizione per la scadenza.");
+        return;
+      }
+
+      if (dateValue === "") {
+        alert("Seleziona una data valida.");
+        return;
+      }
+
+      // Calcola i giorni di distanza per determinare urgenza e stato
+      const chosenDay = parseInt(dateValue.split("-")[2]) || 25;
+      const daysOffset = Math.max(1, chosenDay - 17);
+      const isUrgent = daysOffset <= 3;
+      const statusText = isUrgent ? "Urgente" : (daysOffset <= 7 ? "In settimana" : "Programmata");
+
+      // Crea il nuovo oggetto scadenza
+      const newDeadline = {
+        id: Date.now(),
+        title: description,
+        category: selectedAddCategory,
+        icon: getCategoryIcon(selectedAddCategory),
+        date: dateValue,
+        badgeText: "Tra " + daysOffset + " gg",
+        statusText: statusText,
+        isUrgent: isUrgent,
+        daysOffset: daysOffset
+      };
+
+      // Inserisce la nuova scadenza in cima alla lista
+      deadlinesList.unshift(newDeadline);
+
+      // Aggiorna l'interfaccia e chiude il modale
+      renderMainList();
+      hideModal(addModalOverlay);
+    });
+
+    /* === 6. FUNZIONALITÀ 2: SCADENZE DEL MESE CON CALENDARIO A CERCHI === */
+    monthMetricsCard.addEventListener("click", function() {
+      renderMonthlyCalendar();
+      showModal(monthModalOverlay);
+    });
+
+    closeMonthModalBtn.addEventListener("click", function() {
+      hideModal(monthModalOverlay);
+    });
+
+    // Disegna la griglia del calendario mensile e i cerchi colorati
+    function renderMonthlyCalendar() {
+      // Intestazioni dei giorni della settimana
+      const weekDays = ["L", "M", "M", "G", "V", "S", "D"];
+      let calendarHtml = "";
+
+      for (let w = 0; w < weekDays.length; w++) {
+        calendarHtml += `<div class="calendar-weekday">${weekDays[w]}</div>`;
+      }
+
+      // Ottobre 2026 inizia di Giovedì (offset di 3 giorni vuoti lunedì-mercoledì)
+      const firstDayOffset = 3;
+      const daysInOctober = 31;
+
+      // Spazi vuoti per i giorni prima del 1° del mese
+      for (let empty = 0; empty < firstDayOffset; empty++) {
+        calendarHtml += `<div class="calendar-day empty"></div>`;
+      }
+
+      // Giorni del mese con verifica scadenze e cerchi colorati
+      for (let day = 1; day <= daysInOctober; day++) {
+        // Formato stringa giorno es: 2026-10-19
+        const dayFormatted = (day < 10 ? "0" : "") + day;
+        const fullDateString = `2026-10-${dayFormatted}`;
+
+        // Cerca se esiste una scadenza in questo giorno
+        const deadlineForDay = deadlinesList.find(function(item) {
+          return item.date === fullDateString;
+        });
+
+        let circleClass = "";
+        if (deadlineForDay) {
+          // Regola richiesta:
+          // 1. Cerchio rosso per scadenze della settimana (prossimi 7 giorni da oggi 17 Ottobre: giorni 17-24)
+          // 2. Cerchio giallo per scadenze del mese (giorni 25-31)
+          // 3. Cerchio verde per scadenze più lontane (oltre il mese)
+          if (deadlineForDay.daysOffset <= 7) {
+            circleClass = "has-deadline-red";
+          } else {
+            circleClass = "has-deadline-yellow";
+          }
+        }
+
+        calendarHtml += `<div class="calendar-day ${circleClass}">${day}</div>`;
+      }
+
+      // Aggiungiamo un giorno del mese successivo (Novembre) per mostrare il cerchio verde
+      // Cerchio verde per le scadenze più lontane
+      calendarDaysGrid.innerHTML = calendarHtml;
+
+      // Popola l'elenco sottostante delle scadenze del mese
+      const monthlyDeadlines = deadlinesList.filter(function(item) {
+        return item.date.startsWith("2026-10");
+      });
+
+      let monthlyListHtml = "";
+      for (let i = 0; i < monthlyDeadlines.length; i++) {
+        monthlyListHtml += buildDeadlineHtml(monthlyDeadlines[i]);
+      }
+      monthDeadlinesContainer.innerHTML = monthlyListHtml;
+
+      // Ricollega il click agli elementi mostrati nel modale mese
+      attachDeadlineClickEvents();
+    }
+
+    /* === 7. FUNZIONALITÀ 3: SCADENZE IN SETTIMANA === */
+    weekMetricsCard.addEventListener("click", function() {
+      // Filtra le scadenze della settimana
+      const weeklyItems = deadlinesList.filter(function(item) {
+        return item.daysOffset <= 7;
+      });
+
+      let weekHtml = "";
+      if (weeklyItems.length === 0) {
+        weekHtml = `<div class="empty-state">Nessuna scadenza nei prossimi 7 giorni!</div>`;
+      } else {
+        for (let i = 0; i < weeklyItems.length; i++) {
+          weekHtml += buildDeadlineHtml(weeklyItems[i]);
+        }
+      }
+
+      weekDeadlinesContainer.innerHTML = weekHtml;
+      attachDeadlineClickEvents();
+      showModal(weekModalOverlay);
+    });
+
+    closeWeekModalBtn.addEventListener("click", function() {
+      hideModal(weekModalOverlay);
+    });
+
+    /* === 8. FUNZIONALITÀ 4: DETTAGLIO SCADENZA E TASTO 'COMPLETATA' === */
+    function openDetailModal(deadlineId) {
+      const selectedItem = deadlinesList.find(function(item) {
+        return item.id === deadlineId;
+      });
+
+      if (!selectedItem) return;
+
+      activeDeadlineId = selectedItem.id;
+
+      // Popola le informazioni nel modale dettaglio
+      document.querySelector("#detailCategoryIcon").textContent = selectedItem.icon;
+      document.querySelector("#detailTitleHeader").textContent = selectedItem.category;
+      document.querySelector("#detailItemTitle").textContent = selectedItem.title;
+      document.querySelector("#detailItemCategory").textContent = selectedItem.category;
+      document.querySelector("#detailItemDate").textContent = selectedItem.date;
+      
+      const statusElement = document.querySelector("#detailItemStatus");
+      statusElement.textContent = selectedItem.statusText;
+      statusElement.style.color = selectedItem.isUrgent ? "var(--color-urgent-badge-text)" : "var(--color-text-headline)";
+
+      showModal(detailModalOverlay);
+    }
+
+    closeDetailModalBtn.addEventListener("click", function() {
+      hideModal(detailModalOverlay);
+    });
+
+    // Azione al click su "Completata"
+    completeDeadlineBtn.addEventListener("click", function() {
+      if (activeDeadlineId === null) return;
+
+      // Trova l'indice della scadenza nell'array e la rimuove
+      const itemIndex = deadlinesList.findIndex(function(item) {
+        return item.id === activeDeadlineId;
+      });
+
+      if (itemIndex !== -1) {
+        // Rimuove la scadenza completata
+        deadlinesList.splice(itemIndex, 1);
+        
+        // Feedback visivo semplice
+        alert("Complimenti! La scadenza è stata contrassegnata come completata.");
+        
+        // Chiude il modale dettaglio e aggiorna l'app
+        hideModal(detailModalOverlay);
+        hideModal(weekModalOverlay);
+        hideModal(monthModalOverlay);
+        hideModal(categoryFilterModalOverlay);
+        renderMainList();
+      }
+    });
+
+    /* === 9. FUNZIONALITÀ 5: CATEGORIE RAPIDE === */
+    // Seleziona tutti i pulsanti delle categorie rapide
+    const categoryButtons = document.querySelectorAll(".category-btn");
+    categoryButtons.forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        const categoryName = this.getAttribute("data-category");
+        openCategoryView(categoryName);
+      });
+    });
+
+    // Apre il modale filtrato per una categoria specifica
+    function openCategoryView(categoryName) {
+      categoryFilterModalTitle.textContent = "Categoria: " + categoryName;
+      categoryFilterModalIcon.textContent = getCategoryIcon(categoryName);
+
+      // Filtra le scadenze relative a questa categoria
+      const filteredDeadlines = deadlinesList.filter(function(item) {
+        return item.category === categoryName;
+      });
+
+      let categoryListHtml = "";
+      if (filteredDeadlines.length === 0) {
+        categoryListHtml = `
+          <div class="empty-state">
+            Nessuna scadenza registrata per ${categoryName}.
+          </div>
+        `;
+      } else {
+        for (let i = 0; i < filteredDeadlines.length; i++) {
+          categoryListHtml += buildDeadlineHtml(filteredDeadlines[i]);
+        }
+      }
+
+      categoryDeadlinesContainer.innerHTML = categoryListHtml;
+      attachDeadlineClickEvents();
+      showModal(categoryFilterModalOverlay);
+    }
+
+    closeCategoryFilterModalBtn.addEventListener("click", function() {
+      hideModal(categoryFilterModalOverlay);
+    });
+
+    // Chiude i modali cliccando sullo sfondo oscurato esterno
+    const allModals = document.querySelectorAll(".modal-overlay");
+    allModals.forEach(function(overlay) {
+      overlay.addEventListener("click", function(event) {
+        if (event.target === overlay) {
+          hideModal(overlay);
+        }
+      });
+    });
+
+    /* === 10. AVVIO INIZIALE DELL'APPLICAZIONE === */
+    renderMainList();
+  </script>
+</body>
+</html>

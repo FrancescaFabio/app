@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html lang="it"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TimeKeep - Wireframe Scadenze</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-primary-container": "#858386",
+            "inverse-on-surface": "#f3f0f4",
+            "outline-variant": "#c8c5ca",
+            "error": "#ba1a1a",
+            "surface-container-low": "#f5f3f6",
+            "primary-fixed-dim": "#c8c6c8",
+            "on-tertiary-container": "#8a8282",
+            "on-secondary-container": "#63646c",
+            "on-tertiary-fixed": "#1f1a1a",
+            "surface-tint": "#5f5e60",
+            "on-surface-variant": "#47464a",
+            "tertiary-fixed-dim": "#cec4c4",
+            "on-tertiary": "#ffffff",
+            "secondary": "#5d5e66",
+            "secondary-fixed": "#e3e1ec",
+            "error-container": "#ffdad6",
+            "primary-container": "#1c1b1d",
+            "secondary-container": "#e3e1ec",
+            "surface-container-high": "#eae7eb",
+            "on-surface": "#1b1b1e",
+            "tertiary": "#000000",
+            "on-secondary-fixed-variant": "#46464e",
+            "primary-fixed": "#e5e1e4",
+            "surface-container-highest": "#e4e1e5",
+            "on-error-container": "#93000a",
+            "tertiary-fixed": "#ebe0df",
+            "on-primary-fixed": "#1c1b1d",
+            "on-secondary-fixed": "#1a1b22",
+            "on-primary-fixed-variant": "#474649",
+            "surface-container-lowest": "#ffffff",
+            "inverse-primary": "#c8c6c8",
+            "primary": "#000000",
+            "on-background": "#1b1b1e",
+            "on-error": "#ffffff",
+            "surface-dim": "#dcd9dd",
+            "outline": "#78767b",
+            "background": "#fbf8fc",
+            "inverse-surface": "#303033",
+            "on-primary": "#ffffff",
+            "surface-container": "#f0edf1",
+            "surface": "#fbf8fc",
+            "surface-variant": "#e4e1e5",
+            "on-tertiary-fixed-variant": "#4c4545",
+            "tertiary-container": "#1f1a1a",
+            "on-secondary": "#ffffff",
+            "secondary-fixed-dim": "#c6c5cf",
+            "surface-bright": "#fbf8fc"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "gutter": "1rem",
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem",
+            "space-lg": "1.5rem",
+            "space-xl": "2rem",
+            "margin": "1rem"
+          },
+          "fontFamily": {
+            "label-lg": ["Geist"],
+            "headline-md": ["Geist"],
+            "headline-sm": ["Geist"],
+            "display": ["Geist"],
+            "body-lg": ["Geist"],
+            "body-md": ["Geist"],
+            "label-sm": ["Geist"],
+            "label-md": ["Geist"],
+            "headline-lg": ["Geist"],
+            "body-sm": ["Geist"]
+          },
+          "fontSize": {
+            "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.005em", "fontWeight": "500" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-sm": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" }],
+            "display": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "label-sm": ["10px", { "lineHeight": "12px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      display: inline-block;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+      font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+    }
+  </style>
+</head>
+<body class="bg-surface-container-high min-h-screen flex items-center justify-center p-0 md:p-6 antialiased font-body-md text-on-surface">
+<!-- iPhone Canvas Frame (390px x 844px) -->
+<main class="w-full max-w-[390px] h-[844px] bg-[#BEE0B1] flex flex-col justify-between overflow-hidden relative shadow-2xl rounded-[40px] border border-[#a2c993] text-[#3D5732]" style="font-family: 'Noto Sans', sans-serif;">
+<!-- Top Status Bar Simulation -->
+<header class="w-full pt-3 px-6 pb-2 flex justify-between items-center text-[#3D5732] text-[12px] font-medium">
+<span class="tracking-tight font-bold text-[13px]">09:41</span>
+<div class="flex items-center space-x-1.5">
+<span class="material-symbols-outlined text-[15px]">signal_cellular_alt</span>
+<span class="material-symbols-outlined text-[15px]">wifi</span>
+<span class="material-symbols-outlined text-[15px]">battery_full</span>
+</div>
+</header>
+<!-- Scrollable Content Canvas -->
+<div class="flex-1 overflow-y-auto px-5 py-3 flex flex-col space-y-5">
+<!-- 1. HEADER (TopAppBar Shared Component Mapping) -->
+<section class="flex flex-col pb-2 border-b border-[#a8ce9b]/60">
+<div class="flex justify-between items-center w-full">
+<div>
+<h1 class="text-[24px] font-extrabold tracking-tight text-[#283f20]">TimeKeep</h1>
+<p class="text-[13px] font-medium text-[#4b6b3e] mt-0.5">Gestione scadenze personali</p>
+</div>
+<button aria-label="Profilo utente" class="w-10 h-10 rounded-full bg-[#E2E8E1] border border-white/60 shadow-sm flex items-center justify-center text-[#3D5732] hover:bg-[#d5dcd4] active:opacity-80 transition-all" type="button">
+<span class="material-symbols-outlined text-[24px]">account_circle</span>
+</button>
+</div>
+</section>
+<!-- 2. ELEMENTO PRINCIPALE (Card metriche in evidenza) -->
+<section class="space-y-2">
+<div class="grid grid-cols-2 gap-3">
+<!-- Blocco 1: Scadenze in settimana -->
+<article class="bg-[#E2E8E1] border border-white/80 p-4 rounded-3xl flex flex-col justify-between h-32 shadow-sm hover:shadow transition-shadow">
+<div class="flex justify-between items-start">
+<span class="text-[12px] font-semibold text-[#48633c] leading-tight">Scadenze in settimana</span>
+<div class="w-7 h-7 rounded-full bg-white/70 flex items-center justify-center">
+<span class="material-symbols-outlined text-[#3D5732] text-[16px]">calendar_view_week</span>
+</div>
+</div>
+<div>
+<div class="text-[36px] font-black text-[#263e1f] leading-none tracking-tight">3</div>
+<span class="text-[12px] font-medium text-[#4e6b42] block mt-1.5">prossimi 7 giorni</span>
+</div>
+</article>
+<!-- Blocco 2: Scadenze del mese -->
+<article class="bg-[#E2E8E1] border border-white/80 p-4 rounded-3xl flex flex-col justify-between h-32 shadow-sm hover:shadow transition-shadow">
+<div class="flex justify-between items-start">
+<span class="text-[12px] font-semibold text-[#48633c] leading-tight">Scadenze del mese</span>
+<div class="w-7 h-7 rounded-full bg-white/70 flex items-center justify-center">
+<span class="material-symbols-outlined text-[#3D5732] text-[16px]">calendar_month</span>
+</div>
+</div>
+<div>
+<div class="text-[36px] font-black text-[#263e1f] leading-none tracking-tight">8</div>
+<span class="text-[12px] font-medium text-[#4e6b42] block mt-1.5">questo mese</span>
+</div>
+</article>
+</div>
+</section>
+<!-- 3. AZIONI (Categorie rapide) -->
+<section class="space-y-2.5">
+<div class="flex items-center justify-between px-1">
+<h2 class="text-[16px] font-bold text-[#283f20]">Categorie rapide</h2>
+<span class="text-[11px] font-semibold bg-[#2d4924]/10 text-[#2f4b23] px-2.5 py-0.5 rounded-full">3 attive</span>
+</div>
+<div class="grid grid-cols-3 gap-2.5">
+<!-- Categoria: Macchina -->
+<button class="flex flex-col items-center justify-center py-3.5 px-2 bg-[#E2E8E1] border border-white/80 rounded-3xl hover:bg-[#d8e0d7] active:scale-95 shadow-sm transition-all" type="button">
+<div class="w-10 h-10 rounded-2xl bg-white/80 flex items-center justify-center mb-2 shadow-xs">
+<span class="material-symbols-outlined text-[#3D5732] text-[20px]">directions_car</span>
+</div>
+<span class="text-[13px] font-semibold text-[#2d4722]">Macchina</span>
+</button>
+<!-- Categoria: Medicine -->
+<button class="flex flex-col items-center justify-center py-3.5 px-2 bg-[#E2E8E1] border border-white/80 rounded-3xl hover:bg-[#d8e0d7] active:scale-95 shadow-sm transition-all" type="button">
+<div class="w-10 h-10 rounded-2xl bg-white/80 flex items-center justify-center mb-2 shadow-xs">
+<span class="material-symbols-outlined text-[#3D5732] text-[20px]">medical_services</span>
+</div>
+<span class="text-[13px] font-semibold text-[#2d4722]">Medicine</span>
+</button>
+<!-- Categoria: Bollette -->
+<button class="flex flex-col items-center justify-center py-3.5 px-2 bg-[#E2E8E1] border border-white/80 rounded-3xl hover:bg-[#d8e0d7] active:scale-95 shadow-sm transition-all" type="button">
+<div class="w-10 h-10 rounded-2xl bg-white/80 flex items-center justify-center mb-2 shadow-xs">
+<span class="material-symbols-outlined text-[#3D5732] text-[20px]">description</span>
+</div>
+<span class="text-[13px] font-semibold text-[#2d4722]">Bollette</span>
+</button>
+</div>
+</section>
+<!-- 4. SEZIONE DI RIEPILOGO STRUTTURALE -->
+<section class="space-y-2.5">
+<div class="flex items-center justify-between px-1">
+<h2 class="text-[16px] font-bold text-[#283f20]">Prossime scadenze</h2>
+<span class="text-[11px] font-semibold text-[#466639]">Priorità temporale</span>
+</div>
+<div class="space-y-2">
+<!-- Scadenza 1 -->
+<div class="p-3.5 flex items-center justify-between bg-[#E2E8E1] border border-white/80 rounded-2xl shadow-sm hover:shadow transition-shadow">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 bg-white/90 border border-white flex items-center justify-center rounded-xl shadow-xs">
+<span class="material-symbols-outlined text-[#3D5732] text-[19px]">directions_car</span>
+</div>
+<div>
+<p class="text-[14px] font-bold text-[#253f1f] leading-snug">Assicurazione Auto</p>
+<p class="text-[12px] font-medium text-[#506e45]">Macchina · Polizza semestrale</p>
+</div>
+</div>
+<div class="text-right flex flex-col items-end">
+<span class="bg-[#5DA824] text-white font-bold text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap shadow-xs">Tra 2 giorni</span>
+<span class="text-[10px] font-extrabold text-[#ba1a1a] tracking-wide mt-1 uppercase">Urgente</span>
+</div>
+</div>
+<!-- Scadenza 2 -->
+<div class="p-3.5 flex items-center justify-between bg-[#E2E8E1] border border-white/80 rounded-2xl shadow-sm hover:shadow transition-shadow">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 bg-white/90 border border-white flex items-center justify-center rounded-xl shadow-xs">
+<span class="material-symbols-outlined text-[#3D5732] text-[19px]">medical_services</span>
+</div>
+<div>
+<p class="text-[14px] font-bold text-[#253f1f] leading-snug">Ritiro Ricetta Medica</p>
+<p class="text-[12px] font-medium text-[#506e45]">Medicine · Farmacia Centrale</p>
+</div>
+</div>
+<div class="text-right flex flex-col items-end">
+<span class="bg-white/80 text-[#304e26] border border-[#a6c49c] font-semibold text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap">Tra 4 giorni</span>
+<span class="text-[10px] font-semibold text-[#547348] mt-1">In attesa</span>
+</div>
+</div>
+<!-- Scadenza 3 -->
+<div class="p-3.5 flex items-center justify-between bg-[#E2E8E1] border border-white/80 rounded-2xl shadow-sm hover:shadow transition-shadow">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 bg-white/90 border border-white flex items-center justify-center rounded-xl shadow-xs">
+<span class="material-symbols-outlined text-[#3D5732] text-[19px]">description</span>
+</div>
+<div>
+<p class="text-[14px] font-bold text-[#253f1f] leading-snug">Bolletta Energia Elettrica</p>
+<p class="text-[12px] font-medium text-[#506e45]">Bollette · Addebito diretto</p>
+</div>
+</div>
+<div class="text-right flex flex-col items-end">
+<span class="bg-white/80 text-[#304e26] border border-[#a6c49c] font-semibold text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap">Scade il 28</span>
+<span class="text-[10px] font-semibold text-[#547348] mt-1">Programmata</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- 5. AZIONE SECONDARIA / FOOTER DOCK -->
+<footer class="px-5 pt-2 pb-4 bg-transparent">
+<button class="w-full h-12 bg-[#25441E] text-white font-bold text-[14px] rounded-full flex items-center justify-center space-x-2 shadow-md hover:bg-[#1f3a19] active:scale-[0.99] transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span>Aggiungi scadenza</span>
+</button>
+<!-- Home Indicator Simulator -->
+<div class="w-32 h-1 bg-[#3D5732]/30 mx-auto mt-3 rounded-full"></div>
+</footer>
+</main>
+</body></html>
